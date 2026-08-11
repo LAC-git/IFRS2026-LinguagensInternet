@@ -13,6 +13,6 @@
       <button id="actionButton">Clique aqui</button>
       <p id="message"></p>
     </main>
-    <script src="../js/script-index.js"></script>
+    <script src="../js/index.js"></script>
   </body>
 </html>

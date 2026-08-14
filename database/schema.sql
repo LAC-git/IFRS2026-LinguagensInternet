@@ -1,4 +1,3 @@
-﻿-- Loja: esquema de banco de dados para CRUD de produtos, clientes, pedidos e itens
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,

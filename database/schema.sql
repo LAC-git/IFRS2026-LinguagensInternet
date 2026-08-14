@@ -1,68 +1,120 @@
+-- ============================================================
+-- BANCO DE DADOS: LOJINHA
+-- ENGINE: InnoDB
+-- ============================================================
+-- COMO FUNCIONAM AS REGRAS DE SEGURANCA (FOREIGN KEYS):
+-- 
+-- 1. ON DELETE CASCADE (itens_pedido -> pedidos):
+--    - Se voce apagar um pedido, todos os itens dele sao apagados 
+--      junto automaticamente. Isso evita "itens orfaos" no banco.
+--    - DICA DE OURO: Em vez de apagar um pedido, apenas mude 
+--      o status dele para 'cancelado' para nao perder o historico.
+--
+-- 2. ON DELETE RESTRICT (produtos -> categorias / pedidos -> clientes):
+--    - Funciona como uma trava de seguranca. Nao deixa apagar um cliente 
+--      que ja fez pedidos, nem uma categoria que ja tem produtos associados.
+--
+-- 3. ON DELETE SET NULL (pedidos -> funcionarios):
+--    - Se um funcionario for apagado do sistema, o pedido continua 
+--      salvo normalmente, apenas deixando o campo do funcionario em branco.
+-- ============================================================
+
+
 CREATE DATABASE lojinha
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS users (
+USE lojinha;
+
+
+-- 1. TABELAS PRINCIPAIS (Nao dependem de nenhuma outra)
+-- ============================================================
+
+-- Guarda as categorias das mercadorias
+CREATE TABLE IF NOT EXISTS categorias (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) NOT NULL UNIQUE,
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  descricao TEXT,
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Guarda os dados e o login dos clientes
+CREATE TABLE IF NOT EXISTS clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  role ENUM('admin','customer') NOT NULL DEFAULT 'customer',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  hash_senha VARCHAR(255) NOT NULL,
+  telefone VARCHAR(30),
+  endereco TEXT,
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS categories (
+-- Guarda os dados e o login dos funcionarios
+CREATE TABLE IF NOT EXISTS funcionarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL UNIQUE,
-  description TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  nome VARCHAR(150) NOT NULL,
+  cpf VARCHAR(14) NOT NULL UNIQUE,
+  cargo VARCHAR(50) NOT NULL,
+  telefone VARCHAR(30),
+  email VARCHAR(255) NOT NULL UNIQUE,
+  hash_senha VARCHAR(255) NOT NULL,
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS products (
+
+-- 2. TABELAS COM LIGACOES (Dependem das tabelas acima)
+-- ============================================================
+
+-- Lista de produtos (Cada produto precisa ter 1 categoria)
+-- RESTRICT: Nao deixa apagar uma categoria se houver produtos nela
+CREATE TABLE IF NOT EXISTS produtos (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  category_id INT NOT NULL,
-  name VARCHAR(150) NOT NULL,
-  description TEXT,
-  price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-  stock INT NOT NULL DEFAULT 0,
+  categoria_id INT NOT NULL,
+  nome VARCHAR(150) NOT NULL,
+  descricao TEXT,
+  preco DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  estoque INT NOT NULL DEFAULT 0,
   sku VARCHAR(100) NOT NULL UNIQUE,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT ON UPDATE CASCADE
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS customers (
+-- Registra os pedidos (Conecta o cliente e o funcionario responsavel)
+-- RESTRICT: Nao deixa apagar o cliente se ele ja fez algum pedido
+-- SET NULL: Se o funcionario for apagado, o pedido continua salvo sem funcionario
+CREATE TABLE IF NOT EXISTS pedidos (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
-  phone VARCHAR(30),
-  address TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS orders (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  customer_id INT NOT NULL,
-  order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  status ENUM('pending','paid','shipped','completed','canceled') NOT NULL DEFAULT 'pending',
+  cliente_id INT NOT NULL,
+  funcionario_id INT,
+  data_pedido DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('pendente','pago','enviado','concluido','cancelado') NOT NULL DEFAULT 'pendente',
   total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT ON UPDATE CASCADE
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  FOREIGN KEY (funcionario_id) REFERENCES funcionarios(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS order_items (
+
+-- 3. TABELA N PRA N (Conecta Pedidos e Produtos)
+-- ============================================================
+
+-- Guarda quais produtos estao em cada pedido e as quantidades
+-- CASCADE: Se apagar o pedido, apaga automaticamente os itens dele
+-- RESTRICT: Nao deixa apagar um produto do sistema se ele ja foi vendido em algum pedido
+CREATE TABLE IF NOT EXISTS itens_pedido (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  order_id INT NOT NULL,
-  product_id INT NOT NULL,
-  quantity INT NOT NULL DEFAULT 1,
-  unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-  subtotal DECIMAL(12,2) AS (quantity * unit_price) STORED,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT ON UPDATE CASCADE
+  pedido_id INT NOT NULL,
+  produto_id INT NOT NULL,
+  quantidade INT NOT NULL DEFAULT 1,
+  preco_unitario DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  subtotal DECIMAL(12,2) AS (quantidade * preco_unitario) STORED,
+  criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );

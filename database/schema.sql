@@ -2,17 +2,17 @@
 -- BANCO DE DADOS: LOJINHA
 -- ENGINE: InnoDB
 -- ============================================================
--- COMO FUNCIONAM AS REGRAS DE SEGURANCA (FOREIGN KEYS):
+-- COMO FUNCIONAM AS REGRAS DE SEGURANCA NAS FOREIGN KEYS:
 -- 
 -- 1. ON DELETE CASCADE (itens_pedido -> pedidos):
 --    - Se voce apagar um pedido, todos os itens dele sao apagados 
---      junto automaticamente. Isso evita "itens orfaos" no banco.
---    - DICA DE OURO: Em vez de apagar um pedido, apenas mude 
+--      junto automaticamente. Isso evita itens "orfaos" no banco.
+--    - Em vez de apagar um pedido, apenas mude 
 --      o status dele para 'cancelado' para nao perder o historico.
 --
 -- 2. ON DELETE RESTRICT (produtos -> categorias / pedidos -> clientes):
---    - Funciona como uma trava de seguranca. Nao deixa apagar um cliente 
---      que ja fez pedidos, nem uma categoria que ja tem produtos associados.
+--    - Não deixa apagar um cliente que ja fez pedidos,
+--      nem uma categoria que ja tem produtos associados.
 --
 -- 3. ON DELETE SET NULL (pedidos -> funcionarios):
 --    - Se um funcionario for apagado do sistema, o pedido continua 
@@ -27,10 +27,10 @@ COLLATE utf8mb4_unicode_ci;
 USE lojinha;
 
 
--- 1. TABELAS PRINCIPAIS (Nao dependem de nenhuma outra)
+-- 1. TABELAS PRINCIPAIS (Não dependem de nenhuma outra)
 -- ============================================================
 
--- Guarda as categorias das mercadorias
+-- Categorias
 CREATE TABLE IF NOT EXISTS categorias (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL UNIQUE,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS categorias (
   atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Guarda os dados e o login dos clientes
+-- Clientes
 CREATE TABLE IF NOT EXISTS clientes (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(150) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS clientes (
   atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Guarda os dados e o login dos funcionarios
+-- Funcionarios
 CREATE TABLE IF NOT EXISTS funcionarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(150) NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS funcionarios (
 -- ============================================================
 
 -- Lista de produtos (Cada produto precisa ter 1 categoria)
--- RESTRICT: Nao deixa apagar uma categoria se houver produtos nela
+-- RESTRICT: Não deixa apagar uma categoria se houver produtos nela
 CREATE TABLE IF NOT EXISTS produtos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   categoria_id INT NOT NULL,
@@ -83,8 +83,8 @@ CREATE TABLE IF NOT EXISTS produtos (
   FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- Registra os pedidos (Conecta o cliente e o funcionario responsavel)
--- RESTRICT: Nao deixa apagar o cliente se ele ja fez algum pedido
+-- Pedidos (Conecta o cliente e o funcionario responsável)
+-- RESTRICT: Não deixa apagar o cliente se ele já fez algum pedido
 -- SET NULL: Se o funcionario for apagado, o pedido continua salvo sem funcionario
 CREATE TABLE IF NOT EXISTS pedidos (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
 
 -- Guarda quais produtos estao em cada pedido e as quantidades
 -- CASCADE: Se apagar o pedido, apaga automaticamente os itens dele
--- RESTRICT: Nao deixa apagar um produto do sistema se ele ja foi vendido em algum pedido
+-- RESTRICT: Não deixa apagar um produto do sistema se ele já foi vendido em algum pedido
 CREATE TABLE IF NOT EXISTS itens_pedido (
   id INT AUTO_INCREMENT PRIMARY KEY,
   pedido_id INT NOT NULL,

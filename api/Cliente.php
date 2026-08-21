@@ -16,7 +16,7 @@ class Cliente {
     private ?string $atualizado_em;
 
     // O array `$dados` é opcional
-    public function __construct(array $dados = [], PDO $conn) {
+    public function __construct(PDO $conn, array $dados = []) {
 
         $this->conn = $conn;
 
@@ -41,11 +41,11 @@ class Cliente {
     public function getAtualizadoEm():  ?string { return $this->atualizado_em; }
 
     // Setters
-    public function setNome(?string $nome):                     void { $this->nome = $nome; }
-    public function setEmail(?string $email):                   void { $this->email = $email; }
-    public function setHashSenha(?string $hash_senha):          void { $this->hash_senha = $hash_senha; }
-    public function setTelefone(?string $telefone):             void { $this->telefone = $telefone; }
-    public function setEndereco(?string $endereco):             void { $this->endereco = $endereco; }
+    public function setNome(?string $nome):                 void { $this->nome = $nome; }
+    public function setEmail(?string $email):               void { $this->email = $email; }
+    public function setHashSenha(?string $hash_senha):      void { $this->hash_senha = $hash_senha; }
+    public function setTelefone(?string $telefone):         void { $this->telefone = $telefone; }
+    public function setEndereco(?string $endereco):         void { $this->endereco = $endereco; }
    
 
     // Salvar / Atualizar no banco de dados:

@@ -98,7 +98,7 @@ class Cliente {
     }
 
 
-    // Carrega os dados de um cliente a partir do ID:
+    // Carrega os dados de um cliente a partir do ID
     public function load(int $id): bool {
         $stmt = $this->conn->prepare("SELECT * FROM clientes WHERE id = :id");
         $stmt->execute([':id' => $id]);
@@ -116,21 +116,21 @@ class Cliente {
         return false;
     }
 
-    // Exclui o cliente atual do banco de dados.
+    // Exclui o cliente atual do banco de dados
     public function delete(): bool {
-        if (!$this->id) {
-            return false;
-        }
+        if (!$this->id) { return false; }
         $stmt = $this->conn->prepare("DELETE FROM clientes WHERE id = :id");
         return $stmt->execute([':id' => $this->id]);
     }
     
-    // Retorna todos os clientes cadastrados.
+    // Retorna todos os clientes cadastrados
     public static function all(PDO $conn): array {
         $stmt = $conn->query("SELECT * FROM clientes");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Converte uma instância de Cliente em um array associativo
+    public function toArray(): array { return get_object_vars($this); }
 }
 
 ?>

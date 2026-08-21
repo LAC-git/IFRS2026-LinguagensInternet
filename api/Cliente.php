@@ -16,7 +16,7 @@ class Cliente {
     private ?string $atualizado_em;
 
     // O array `$dados` é opcional
-    public function __construct(PDO $conn, array $dados = []) {
+    public function __construct( PDO $conn, array $dados = []) {
 
         $this->conn = $conn;
 
@@ -115,6 +115,22 @@ class Cliente {
         }
         return false;
     }
+
+    // Exclui o cliente atual do banco de dados.
+    public function delete(): bool {
+        if (!$this->id) {
+            return false;
+        }
+        $stmt = $this->conn->prepare("DELETE FROM clientes WHERE id = :id");
+        return $stmt->execute([':id' => $this->id]);
+    }
+    
+    // Retorna todos os clientes cadastrados.
+    public static function all(PDO $conn): array {
+        $stmt = $conn->query("SELECT * FROM clientes");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
 
 ?>

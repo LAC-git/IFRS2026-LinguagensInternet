@@ -1,6 +1,5 @@
 <?php
 
-
 // Active Record para a tabela `pedidos`
 
 class Pedido {

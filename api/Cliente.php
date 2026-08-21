@@ -15,7 +15,7 @@ class Cliente {
     private ?string $criado_em;
     private ?string $atualizado_em;
 
-    // O array `$dados` é opcional
+    // Construtor – recebe obrigatoriamente a conexão PDO e, opcionalmente, dados iniciais.
     public function __construct( PDO $conn, array $dados = []) {
 
         $this->conn = $conn;

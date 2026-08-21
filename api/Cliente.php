@@ -5,7 +5,7 @@
 class Cliente {
 
     private PDO     $conn;
-    
+
     private ?int    $id;
     private ?string $nome;
     private ?string $email;
@@ -52,29 +52,53 @@ class Cliente {
 
 
     // Salvar / Atualizar no banco de dados:
-    public function save() {
-    if ($this->id) {
+    public function save(): bool {
+        if ($this->id) {
 
-        $sql = "UPDATE clientes SET nome=:n   WHERE id=:id";
-        $stmt = $this->pdo->prepare($sql);
+            // UPDATE – todos os campos editáveis, exceto id e timestamps
+            $sql = "UPDATE clientes SET
+                    nome = :nome,
+                    email = :email,
+                    hash_senha = :hash_senha,
+                    telefone = :telefone,
+                    endereco = :endereco
+                    WHERE id = :id";
+                
+            $stmt = $this->conn->prepare($sql);
 
-        return $stmt->execute([
-            'id' => $this->id,
-        ]);
+            return $stmt->execute([
+                ':nome'         => $this->nome,
+                ':email'        => $this->email,
+                ':hash_senha'   => $this->hash_senha,
+                ':telefone'     => $this->telefone,
+                ':endereco'     => $this->endereco,
+                ':id'           => $this->id
+            ]);
 
-    } else {
+        } else {
+
+            // INSERT – todos os campos, exceto id e timestamps (banco preenche automaticamente)
+            $sql = "INSERT INTO clientes (nome, email, hash_senha, telefone, endereco)
+                    VALUES (:nome, :email, :hash_senha, :telefone, :endereco)";
+
+            $stmt = $this->conn->prepare($sql);
+
+            $ok = $stmt->execute([
+                ':nome'         => $this->nome,
+                ':email'        => $this->email,
+                ':hash_senha'   => $this->hash_senha,
+                ':telefone'     => $this->telefone,
+                ':endereco'     => $this->endereco
+            ]);
+
+            if ($ok) {
+                // Guardar o id no objeto
+                $this->id = $this->conn->lastInsertId();
+            }
         
-        $sql = "INSERT INTO clientes () VALUES ()";
-        $stmt = $this->pdo->prepare($sql);
-        $ok = $stmt->execute([
-        ]);
-        
-        if ($ok) {
-            $this->id $this->pdo->lastInsertId();
+            return $ok;
         }
-        return $ok;
     }
-}
 
 }
 

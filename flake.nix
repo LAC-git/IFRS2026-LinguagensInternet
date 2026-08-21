@@ -77,10 +77,9 @@
           while [ ! -e "$SOCKET" ]; do sleep 1; done
           echo "Database ready."
 
-          # Importa banco de dados "dbname" e schema inicial se disponível
-          ${pkgs.mariadb}/bin/mariadb --socket="$SOCKET" -e "CREATE DATABASE IF NOT EXISTS dbname CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null || true
+          # Importa o schema.sql diretamente (ele cria o banco)
           if [ -f "$DB_DIR/schema.sql" ]; then
-            ${pkgs.mariadb}/bin/mariadb --socket="$SOCKET" dbname < "$DB_DIR/schema.sql" 2>/dev/null || true
+              ${pkgs.mariadb}/bin/mariadb --socket="$SOCKET" < "$DB_DIR/schema.sql" 2>/dev/null || true
           fi
 
           # Drop a default index.php if the project folder is empty

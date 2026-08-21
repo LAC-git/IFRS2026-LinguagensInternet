@@ -129,10 +129,20 @@ class Cliente {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Converte uma instância de Cliente em um array associativo
+    // Converte a instância atual em um array associativo contendo apenas os dados da entidade.
     public function toArray(): array {
-        return get_object_vars($this);
+        return [
+            'id'              => $this->id,
+            'nome'            => $this->nome,
+            'email'           => $this->email,
+            'hash_senha'      => $this->hash_senha,
+            'telefone'        => $this->telefone,
+            'endereco'        => $this->endereco,
+            'criado_em'       => $this->criado_em,
+            'atualizado_em'   => $this->atualizado_em
+        ];
     }
+
 }
 
 ?>

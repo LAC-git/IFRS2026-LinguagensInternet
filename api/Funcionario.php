@@ -135,9 +135,19 @@ class Funcionario {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Converte a instância atual em um array associativo
+    // Converte a instância atual em um array associativo contendo apenas os dados da entidade.
     public function toArray(): array {
-        return get_object_vars($this);
+        return [
+            'id'              => $this->id,
+            'nome'            => $this->nome,
+            'cpf'             => $this->cpf,
+            'cargo'           => $this->cargo,
+            'telefone'        => $this->telefone,
+            'email'           => $this->email,
+            'hash_senha'      => $this->hash_senha,
+            'criado_em'       => $this->criado_em,
+            'atualizado_em'   => $this->atualizado_em
+        ];
     }
 }
 

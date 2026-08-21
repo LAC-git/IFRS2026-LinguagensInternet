@@ -47,9 +47,7 @@ class Cliente {
     public function setHashSenha(?string $hash_senha):          void { $this->hash_senha = $hash_senha; }
     public function setTelefone(?string $telefone):             void { $this->telefone = $telefone; }
     public function setEndereco(?string $endereco):             void { $this->endereco = $endereco; }
-    public function setCriadoEm(?string $criado_em):            void { $this->criado_em = $criado_em; }
-    public function setAtualizadoEm(?string $atualizado_em):    void { $this->atualizado_em = $atualizado_em; }
-
+   
 
     // Salvar / Atualizar no banco de dados:
     public function save(): bool {

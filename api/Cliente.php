@@ -4,8 +4,8 @@
 
 class Cliente {
 
-    private PDO     $con;
-
+    private PDO     $conn;
+    
     private ?int    $id;
     private ?string $nome;
     private ?string $email;
@@ -15,6 +15,7 @@ class Cliente {
     private ?string $criado_em;
     private ?string $atualizado_em;
 
+    // O array `$dados` é opcional
     public function __construct(array $dados = [], PDO $conn) {
 
         $this->conn = $conn;

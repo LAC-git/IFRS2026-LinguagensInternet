@@ -20,14 +20,14 @@ class Cliente {
 
         $this->conn = $conn;
 
-        $this->id =             $dados['id'] ?? null;
+        $this->id =             null;
         $this->nome =           $dados['nome'] ?? null;
         $this->email =          $dados['email'] ?? null;
         $this->hash_senha =     $dados['hash_senha'] ?? null;
         $this->telefone =       $dados['telefone'] ?? null;
         $this->endereco =       $dados['endereco'] ?? null;
-        $this->criado_em =      $dados['criado_em'] ?? null;
-        $this->atualizado_em =  $dados['atualizado_em'] ?? null;
+        $this->criado_em =      null;
+        $this->atualizado_em =  null;
     }
 
     // Getters
@@ -41,7 +41,6 @@ class Cliente {
     public function getAtualizadoEm():  ?string { return $this->atualizado_em; }
 
     // Setters
-    public function setId(?string $id):                            void { $this->id = $id; }
     public function setNome(?string $nome):                     void { $this->nome = $nome; }
     public function setEmail(?string $email):                   void { $this->email = $email; }
     public function setHashSenha(?string $hash_senha):          void { $this->hash_senha = $hash_senha; }
@@ -98,6 +97,24 @@ class Cliente {
         }
     }
 
+
+    // Carrega os dados de um cliente a partir do ID:
+    public function load(int $id): bool {
+        $stmt = $this->conn->prepare("SELECT * FROM clientes WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        if ($dados = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->id              = $dados['id'];
+            $this->nome            = $dados['nome'];
+            $this->email           = $dados['email'];
+            $this->hash_senha      = $dados['hash_senha'];
+            $this->telefone        = $dados['telefone'];
+            $this->endereco        = $dados['endereco'];
+            $this->criado_em       = $dados['criado_em'];
+            $this->atualizado_em   = $dados['atualizado_em'];
+            return true;
+        }
+        return false;
+    }
 }
 
 ?>

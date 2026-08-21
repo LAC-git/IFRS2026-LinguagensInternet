@@ -4,6 +4,8 @@
 
 class Cliente {
 
+    private PDO     $con;
+
     private ?int    $id;
     private ?string $nome;
     private ?string $email;
@@ -13,18 +15,18 @@ class Cliente {
     private ?string $criado_em;
     private ?string $atualizado_em;
 
-    public function __construct(PDO $conn) {
+    public function __construct(array $dados = [], PDO $conn) {
 
         $this->conn = $conn;
 
-        $this->id = null;
-        $this->nome = null;
-        $this->email = null;
-        $this->hash_senha = null;
-        $this->telefone = null;
-        $this->endereco = null;
-        $this->criado_em = null;
-        $this->atualizado_em = null;
+        $this->id =             $dados['id'] ?? null;
+        $this->nome =           $dados['nome'] ?? null;
+        $this->email =          $dados['email'] ?? null;
+        $this->hash_senha =     $dados['hash_senha'] ?? null;
+        $this->telefone =       $dados['telefone'] ?? null;
+        $this->endereco =       $dados['endereco'] ?? null;
+        $this->criado_em =      $dados['criado_em'] ?? null;
+        $this->atualizado_em =  $dados['atualizado_em'] ?? null;
     }
 
     // Getters
@@ -52,11 +54,11 @@ class Cliente {
     public function save() {
     if ($this->id) {
 
-        $sql = "UPDATE clientes SET  WHERE id=:id";
+        $sql = "UPDATE clientes SET nome=:n   WHERE id=:id";
         $stmt = $this->pdo->prepare($sql);
 
         return $stmt->execute([
-            'id' => $this->id
+            'id' => $this->id,
         ]);
 
     } else {
@@ -72,10 +74,6 @@ class Cliente {
         return $ok;
     }
 }
-
-
-
-
 
 }
 

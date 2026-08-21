@@ -6,7 +6,7 @@ class Cliente {
 
     private PDO     $conn;
 
-    private ?int    $id;
+    private ?string $id;
     private ?string $nome;
     private ?string $email;
     private ?string $hash_senha;
@@ -31,7 +31,7 @@ class Cliente {
     }
 
     // Getters
-    public function getId():            ?int    { return $this->id; }
+    public function getId():            ?string { return $this->id; }
     public function getNome():          ?string { return $this->nome; }
     public function getEmail():         ?string { return $this->email; }
     public function getHashSenha():     ?string { return $this->hash_senha; }
@@ -41,7 +41,7 @@ class Cliente {
     public function getAtualizadoEm():  ?string { return $this->atualizado_em; }
 
     // Setters
-    public function setId(?int $id):                            void { $this->id = $id; }
+    public function setId(?string $id):                            void { $this->id = $id; }
     public function setNome(?string $nome):                     void { $this->nome = $nome; }
     public function setEmail(?string $email):                   void { $this->email = $email; }
     public function setHashSenha(?string $hash_senha):          void { $this->hash_senha = $hash_senha; }

@@ -130,7 +130,9 @@ class Cliente {
     }
 
     // Converte uma instância de Cliente em um array associativo
-    public function toArray(): array { return get_object_vars($this); }
+    public function toArray(): array {
+        return get_object_vars($this);
+    }
 }
 
 ?>

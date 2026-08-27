@@ -1,7 +1,7 @@
 # Lojinha Virtual
 
 ### Dependências
-- `[nix](https://nixos.org/)`
+- [nix](https://nixos.org/)
 - nada mais, todas as outras são gerenciadas pelo nix
 
 ### "Compilação" e inicializar a lojinha:

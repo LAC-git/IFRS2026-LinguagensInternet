@@ -1,3 +1,12 @@
-# IFRS2026-LinguagensInternet
+# Lojinha Virtual
 
-Este repositório foi criado para os projetos da disciplina Linguagens Internet do IFRS 2026. Cada branch tem um projeto.
+### Dependências
+- `nix`
+- nada mais, todas as outras são gerenciadas pelo nix
+
+### "Compilação" e inicializar a lojinha:
+
+Basta rodar: `$ nix develop`
+
+Se não tiver com o nix configurado:
+`$ nix --extra-experimental-features "nix-command flakes" develop`
